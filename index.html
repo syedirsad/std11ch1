@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Quiz Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4ade80;
+            --warning: #facc15;
+            --danger: #f87171;
+            --result-bg: rgba(30, 41, 59, 0.9);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .quiz-container {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 2.5rem;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .quiz-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+        
+        .quiz-header {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(76, 201, 240, 0.3);
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        .quiz-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 2px;
+        }
+        
+        /* Updated language selector position */
+        .language-selector {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 10;
+        }
+        
+        .language-selector select {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(100, 116, 139, 0.5);
+            background: rgba(15, 23, 42, 0.7);
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .language-selector select:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+        }
+        
+        .subject-tag {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            z-index: 10;
+        }
+        
+        .home-screen, .quiz-content, .result-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .home-screen.show, .quiz-content.show, .result-screen.show {
+            display: flex;
+        }
+        
+        /* Enhanced home screen */
+        .home-info {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #cbd5e1;
+            text-align: center;
+            max-width: 600px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .home-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+        
+        .home-info p {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .home-info i {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .start-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.6s ease;
+        }
+        
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.6);
+        }
+        
+        .start-button:hover::after {
+            transform: rotate(30deg) translate(10%, 10%);
+        }
+        
+        .start-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Physics animation for home screen */
+        .physics-animation {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            position: relative;
+            height: 120px;
+        }
+        
+        .atom {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .nucleus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+        
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 2px solid rgba(76, 201, 240, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .orbit-1 {
+            width: 80px;
+            height: 80px;
+            animation: spin 12s linear infinite;
+        }
+        
+        .orbit-2 {
+            width: 100px;
+            height: 100px;
+            animation: spin 18s linear infinite reverse;
+        }
+        
+        .orbit-3 {
+            width: 60px;
+            height: 60px;
+            animation: spin 15s linear infinite;
+        }
+        
+        .electron {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        @keyframes spin {
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .question-area {
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 1rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            text-align: left;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+        
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+        
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        
+        .option-item {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1.05rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-item:hover {
+            background: rgba(56, 73, 107, 0.5);
+            transform: translateX(5px);
+            border-color: rgba(76, 201, 240, 0.5);
+        }
+        
+        .option-item.selected {
+            background: rgba(15, 23, 42, 0.9);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.3);
+        }
+        
+        .option-item.selected::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+        }
+        
+        .option-label {
+            font-weight: 700;
+            margin-right: 0.75rem;
+            min-width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(76, 201, 240, 0.1);
+            border-radius: 0.5rem;
+            color: var(--accent);
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            width: 100%;
+            gap: 1rem;
+        }
+        
+        .nav-button {
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            padding: 0.85rem 1.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-button:hover {
+            background: rgba(56, 73, 107, 0.5);
+            border-color: rgba(76, 201, 240, 0.5);
+        }
+        
+        .nav-button:disabled {
+            background: rgba(30, 41, 59, 0.4);
+            color: #64748b;
+            cursor: not-allowed;
+            border-color: rgba(100, 116, 139, 0.2);
+        }
+        
+        .nav-button.next {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+        
+        .nav-button.end {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+        
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .message-box.show {
+            opacity: 1;
+        }
+        
+        .result-screen {
+            min-height: 300px;
+            text-align: center;
+            padding: 2rem;
+            background: var(--result-bg);
+            border-radius: 1rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-screen::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+        
+        .score-text {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 15px rgba(76, 201, 240, 0.5);
+        }
+        
+        .score-details {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .score-box {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .score-box h3 {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .score-box .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .restart-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.85rem 1.75rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+        
+        .restart-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.6);
+        }
+        
+        .show-answers-button {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            padding: 0.85rem 1.75rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem auto 0;
+        }
+        
+        .show-answers-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+        
+        .answer-key-container {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            display: none;
+        }
+        
+        .answer-key-title {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .answer-key-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .answer-item {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .answer-item .question-num {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .question-counter {
+            text-align: right;
+            margin-bottom: 1rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .match-table, .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        
+        .match-table th, .data-table th {
+            background: rgba(30, 41, 59, 0.8);
+            font-weight: 600;
+            padding: 0.75rem;
+            text-align: left;
+            color: var(--accent);
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .match-table td, .data-table td {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+        }
+        
+        .match-table tr:hover, .data-table tr:hover {
+            background: rgba(56, 73, 107, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @media (max-width: 768px) {
+            .quiz-container {
+                padding: 1.5rem;
+            }
+            
+            .quiz-header {
+                font-size: 2rem;
+                margin-top: 1.5rem;
+            }
+            
+            .language-selector {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 1rem;
+                align-self: flex-end;
+            }
+            
+            .subject-tag {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 1rem;
+                align-self: flex-start;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .option-item {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+            }
+            
+            .score-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="subject-tag">
+            <i class="fas fa-atom"></i> PHYSICS
+        </div>
+        
+        <div class="language-selector">
+            <select id="language-select">
+                <option value="gu">ગુજરાતી</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        
+        <h1 id="main-quiz-header" class="quiz-header fade-in"></h1>
+
+        <div id="home-screen" class="home-screen fade-in">
+            <div class="physics-animation">
+                <div class="atom">
+                    <div class="nucleus"></div>
+                    <div class="orbit orbit-1">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="orbit orbit-2">
+                        <div class="electron"></div>
+                    </div>
+                    <div class="orbit orbit-3">
+                        <div class="electron"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="home-info">
+                <p><i class="fas fa-book"></i><span id="chapter-info"></span></p>
+                <p><i class="fas fa-question-circle"></i><span id="questions-count"></span></p>
+                <p><i class="fas fa-star"></i><span id="scoring-info"></span></p>
+                <p><i class="fas fa-chart-bar"></i><span id="results-info"></span></p>
+            </div>
+            <button id="start-quiz-button" class="start-button">
+                <i class="fas fa-play"></i>
+                <span></span>
+            </button>
+        </div>
+
+        <div id="quiz-content" class="quiz-content">
+            <div class="question-counter">
+                <span id="current-question">1</span> of <span id="total-questions">45</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="question-area">
+                <p id="question-text" class="question-text">Loading question...</p>
+                <ul id="options-list" class="options-list"></ul>
+            </div>
+
+            <div class="navigation-buttons">
+                <button id="prev-button" class="nav-button">
+                    <i class="fas fa-arrow-left"></i>
+                    <span></span>
+                </button>
+                <button id="end-button" class="nav-button end">
+                    <i class="fas fa-stop"></i>
+                    <span></span>
+                </button>
+                <button id="next-button" class="nav-button next">
+                    <span></span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="result-screen fade-in">
+            <p class="score-text" id="score-text"></p>
+            
+            <div class="score-details">
+                <div class="score-box">
+                    <h3 id="correct-answers-label"></h3>
+                    <div class="value" id="correct-answers"></div>
+                </div>
+                <div class="score-box">
+                    <h3 id="incorrect-answers-label"></h3>
+                    <div class="value" id="incorrect-answers"></div>
+                </div>
+                <div class="score-box">
+                    <h3 id="score-percentage-label"></h3>
+                    <div class="value" id="score-percentage"></div>
+                </div>
+            </div>
+            
+            <button id="restart-button" class="restart-button">
+                <i class="fas fa-redo"></i>
+                <span></span>
+            </button>
+            
+            <button id="show-answers-button" class="show-answers-button">
+                <i class="fas fa-key"></i>
+                <span>Show Answer Key</span>
+            </button>
+            
+            <div id="answer-key-container" class="answer-key-container">
+                <h3 class="answer-key-title">Answer Key</h3>
+                <div class="answer-key-grid" id="answer-key-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="message-box" class="message-box"></div>
+
+    <script>
+        // Physics questions only (1 to 45)
+        const questionsData = [
+            {
+                "id": 1,
+                "subject": "Physics",
+                "question": {
+                    "gu": "એક સ્ક્રુગેજમાં, વર્તુળાકાર સ્કેલ પર 100 કાપાઓ છે અને વર્તુળાકાર સ્કેલના એક પૂર્ણ પરિભ્રમણ માટે મુખ્ય સ્કેલ 0.5 mm અંતર કાપે છે. વર્તુળાકાર સ્કેલ પરનો શૂન્યનો કાપો જયારે બંને જડબાને એકબીજા સાથે જોડવામાં આવે છે ત્યારે, સંદર્ભ રેખાથી 6 કાપાની નીચે રહે છે. જયારે તારને જડબાની વચ્ચે રાખવામાં આવે ત્યારે 4 રેખીય કાપાઓ સ્પષ્ટતાથી જોઈ શકાય છે જયારે વર્તુળાકાર સ્કેલ પરનો 46 મો કાપો સંદર્ભ રેખા સાથે સંપાત થાય છે. તારનો વ્યાસ _____ $\\times 10^{-2}$ mm થશે.",
+                    "en": "In a screw gauge, there are 100 divisions on the circular scale, and for one complete rotation of the circular scale, the main scale moves 0.5 mm. When both jaws are closed, the zero mark of the circular scale is 6 divisions below the reference line. When a wire is placed between the jaws, 4 linear divisions are clearly visible, while the 46th division on the circular scale coincides with the reference line. The diameter of the wire will be _____ $\\times 10^{-2}$ mm."
+                },
+                "options": {
+                    "A": { "gu": "23", "en": "23" },
+                    "B": { "gu": "20", "en": "20" },
+                    "C": { "gu": "21", "en": "21" },
+                    "D": { "gu": "22", "en": "22" }
+                }
+            },
+            {
+                "id": 2,
+                "subject": "Physics",
+                "question": {
+                    "gu": {
+                        "intro": "એક વિદ્યાર્થી તારનો યંગ મોડ્યુલસ શોધવા $Y=\\frac{MgL^{3}}{4bd^{3}\\delta}$ ઉપયોગ કરે છે. g નું મૂલ્ય કોઈ પણ સાર્થક ત્રુટિ વગર $9.8~m/s^{2}$ છે. તેને લીધેલા અવલોકનો નીચે મુજબ છે:",
+                        "type": "data_table",
+                        "headers": [
+                            {"gu": "ભૌતિક રાશિ", "en": "Physical Quantity"},
+                            {"gu": "માપન માટે લીધેલા સાધનની લઘુતમ માપશક્તિ", "en": "Least Count of Measuring Instrument"},
+                            {"gu": "અવલોકનનું મૂલ્ય", "en": "Observed Value"}
+                        ],
+                        "rows": [
+                            [{"gu": "દળ (M)", "en": "Mass (M)"}, {"gu": "1 g", "en": "1 g"}, {"gu": "2 kg", "en": "2 kg"}],
+                            [{"gu": "સળિયાની લંબાઈ (L)", "en": "Length of rod (L)"}, {"gu": "1 mm", "en": "1 mm"}, {"gu": "1 m", "en": "1 m"}],
+                            [{"gu": "સળિયાની પહોળાઈ (b)", "en": "Breadth of rod (b)"}, {"gu": "0.1 mm", "en": "0.1 mm"}, {"gu": "4 cm", "en": "4 cm"}],
+                            [{"gu": "સળિયાની જાડાઈ (d)", "en": "Thickness of rod (d)"}, {"gu": "0.01 mm", "en": "0.01 mm"}, {"gu": "0.4 cm", "en": "0.4 cm"}],
+                            [{"gu": "વંકન ($\\delta$)", "en": "Bending ($\\delta$)"}, {"gu": "0.01 mm", "en": "0.01 mm"}, {"gu": "5 mm", "en": "5 mm"}]
+                        ],
+                        "conclusion": "તો Y ના માપનમાં આંશિક ત્રુટિ કેટલી હશે?"
+                    },
+                    "en": {
+                        "intro": "A student uses $Y=\\frac{MgL^{3}}{4bd^{3}\\delta}$ to find Young's modulus of a wire. The value of g is $9.8~m/s^{2}$ without any significant error. The observations taken by him are as follows:",
+                        "type": "data_table",
+                        "headers": [
+                            {"gu": "Physical Quantity", "en": "Physical Quantity"},
+                            {"gu": "Least Count of Measuring Instrument", "en": "Least Count of Measuring Instrument"},
+                            {"gu": "Observed Value", "en": "Observed Value"}
+                        ],
+                        "rows": [
+                            [{"gu": "Mass (M)", "en": "Mass (M)"}, {"gu": "1 g", "en": "1 g"}, {"gu": "2 kg", "en": "2 kg"}],
+                            [{"gu": "Length of rod (L)", "en": "Length of rod (L)"}, {"gu": "1 mm", "en": "1 mm"}, {"gu": "1 m", "en": "1 m"}],
+                            [{"gu": "Breadth of rod (b)", "en": "Breadth of rod (b)"}, {"gu": "0.1 mm", "en": "0.1 mm"}, {"gu": "4 cm", "en": "4 cm"}],
+                            [{"gu": "Thickness of rod (d)", "en": "Thickness of rod (d)"}, {"gu": "0.01 mm", "en": "0.01 mm"}, {"gu": "0.4 cm", "en": "0.4 cm"}],
+                            [{"gu": "Bending ($\\delta$)", "en": "Bending ($\\delta$)"}, {"gu": "0.01 mm", "en": "0.01 mm"}, {"gu": "5 mm", "en": "5 mm"}]
+                        ],
+                        "conclusion": "What will be the fractional error in the measurement of Y?"
+                    }
+                },
+                "options": {
+                    "A": { "gu": "0.0083", "en": "0.0083" },
+                    "B": { "gu": "0.0155", "en": "0.0155" },
+                    "C": { "gu": "0.155", "en": "0.155" },
+                    "D": { "gu": "0.083", "en": "0.083" }
+                }
+            },
+            {
+                "id": 3,
+                "subject": "Physics",
+                "question": {
+                    "gu": "જ્યારે સ્ક્રૂ ગેજ સંપૂર્ણ બંધ હોય ત્યારે વર્તુળાકાર સ્કેલનો પાંચમો કાંપો સંદર્ભ રેખા સાથે બંધ બેસે છે. વર્તુળાકાર સ્કેલ પર 50 કાંપા છે અને એક પરિભ્રમણમાં મુખ્ય સ્કેલ 0.5 mm જેટલી ખસે છે. કોઈ એક અવલોકન માટે મુખ્ય સ્કેલ 5 mm અને વર્તુળાકાર સ્કેલનો 20 મો કાંપો સંદર્ભ રેખા સાથે બંધ બેસે છે. સાચું અવલોકન (mm માં) કેટલું હશે?",
+                    "en": "When the screw gauge is completely closed, the fifth division of the circular scale coincides with the reference line. There are 50 divisions on the circular scale and the main scale moves by 0.5 mm in one rotation. For an observation, the main scale reads 5 mm and the 20th division of the circular scale coincides with the reference line. What will be the correct observation (in mm)?"
+                },
+                "options": {
+                    "A": { "gu": "5.00", "en": "5.00" },
+                    "B": { "gu": "5.25", "en": "5.25" },
+                    "C": { "gu": "5.15", "en": "5.15" },
+                    "D": { "gu": "5.20", "en": "5.20" }
+                }
+            },
+            {
+                "id": 4,
+                "subject": "Physics",
+                "question": {
+                    "gu": "એક અલગ કરેલા તંત્રમાં વાયુ અણુઓ દ્વારા થતું કાર્ય $W=\\alpha\\beta^{2}e^{-\\frac{x^{2}}{\\alpha kT}}$, જ્યાં x એ સ્થાનાંતર, k બોલ્ટ્ઝમેન અચળાંક અને T તાપમાન છે. $\\alpha$ અને $\\beta$ અચળાંક છે. $\\beta$ નું પરિમાણ",
+                    "en": "In an isolated system, the work done by gas molecules is $W=\\alpha\\beta^{2}e^{-\\frac{x^{2}}{\\alpha kT}}$, where x is displacement, k is Boltzmann constant and T is temperature. $\\alpha$ and $\\beta$ are constants. The dimension of $\\beta$ is"
+                },
+                "options": {
+                    "A": { "gu": "$[ML^{2}T^{-2}]$", "en": "$[ML^{2}T^{-2}]$" },
+                    "B": { "gu": "$[MLT^{-2}]$", "en": "$[MLT^{-2}]$" },
+                    "C": { "gu": "$[M^{2}LT^{2}]$", "en": "$[M^{2}LT^{2}]$" },
+                    "D": { "gu": "$[M^{0}LT^{0}]$", "en": "$[M^{0}LT^{0}]$" }
+                }
+            },
+            {
+                "id": 5,
+                "subject": "Physics",
+                "question": {
+                    "gu": "જો વેગમાન $[P]$, ક્ષેત્રફળ $[A]$ અને સમય $[T]$ ને મૂળભૂત રાશિઓ તરીકે લેવામાં આવે, તો શ્યાનતા ગુણાંકનું પરિમાણિક સૂત્ર થશે.",
+                    "en": "If momentum $[P]$, area $[A]$ and time $[T]$ are taken as fundamental quantities, then the dimensional formula of coefficient of viscosity will be."
+                },
+                "options": {
+                    "A": { "gu": "$[PA^{-1}T^{0}]$", "en": "$[PA^{-1}T^{0}]$" },
+                    "B": { "gu": "$[PAT^{-1}]$", "en": "$[PAT^{-1}]$" },
+                    "C": { "gu": "$[PA^{-1}T]$", "en": "$[PA^{-1}T]$" },
+                    "D": { "gu": "$[PA^{-1}T^{-1}]$", "en": "$[PA^{-1}T^{-1}]$" }
+                }
+            },
+            {
+                "id": 6,
+                "subject": "Physics",
+                "question": {
+                    "gu": {
+                        "intro": "લિસ્ટ-I ને લિસ્ટ-II સાથે જોડો:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "(a)", "text": "$R_{H}$ (રીડબર્ગ અચળાંક)"},
+                            {"label": "(b)", "text": "h (પ્લાંક અચળાંક)"},
+                            {"label": "(c)", "text": "$\\mu_{B}$ (ચુંબકીય ક્ષેત્રની ઊર્જા ઘનતા)"},
+                            {"label": "(d)", "text": "$\\eta$ (શ્યાનતા ગુણાંક)"}
+                        ],
+                        "list2": [
+                            {"label": "(i)", "text": "$kg~m^{-1}s^{-1}$"},
+                            {"label": "(ii)", "text": "$kg~m^{2}s^{-1}$"},
+                            {"label": "(iii)", "text": "$m^{-1}$"},
+                            {"label": "(iv)", "text": "$kg~m^{-1}s^{-2}$"}
+                        ]
+                    },
+                    "en": {
+                        "intro": "Match List-I with List-II:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "(a)", "text": "$R_{H}$ (Rydberg constant)"},
+                            {"label": "(b)", "text": "h (Planck's constant)"},
+                            {"label": "(c)", "text": "$\\mu_{B}$ (Magnetic field energy density)"},
+                            {"label": "(d)", "text": "$\\eta$ (Coefficient of viscosity)"}
+                        ],
+                        "list2": [
+                            {"label": "(i)", "text": "$kg~m^{-1}s^{-1}$"},
+                            {"label": "(ii)", "text": "$kg~m^{2}s^{-1}$"},
+                            {"label": "(iii)", "text": "$m^{-1}$"},
+                            {"label": "(iv)", "text": "$kg~m^{-1}s^{-2}$"}
+                        ]
+                    }
+                },
+                "options": {
+                    "A": { "gu": "$(a)-(ii),(b)-(iii),(c)-(iv),(d)-(i)$", "en": "$(a)-(ii),(b)-(iii),(c)-(iv),(d)-(i)$" },
+                    "B": { "gu": "$(a)-(iii),(b)-(ii),(c)-(iv),(d)-(i)$", "en": "$(a)-(iii),(b)-(ii),(c)-(iv),(d)-(i)$" },
+                    "C": { "gu": "$(a)-(iv),(b)-(ii),(c)-(i),(d)-(iii)$", "en": "$(a)-(iv),(b)-(ii),(c)-(i),(d)-(iii)$" },
+                    "D": { "gu": "$(a)-(iii),(b)-(ii),(c)-(i),(d)-(iv)$", "en": "$(a)-(iii),(b)-(ii),(c)-(i),(d)-(iv)$" }
+                }
+            },
+            {
+                "id": 7,
+                "subject": "Physics",
+                "question": {
+                    "gu": "સાદા લોલકનો આવર્તકાળ $T=2\\pi\\sqrt{\\frac{l}{g}}$ . 1 mm ચોકસાઇથી લોલકની લંબાઈ માપતા 10 cm મળે છે. 1 s ની લઘુતમ માપશક્તિ વાળી ઘડિયાળથી માપતા 200 દોલનનો સમય 100 સેકન્ડ મળે છે. આ સાદા લોલક દ્વારા g ના મૂલ્યને ચોકસાઈ સાથે માપતા પ્રતિશત ત્રુટિ x મળે છે. x નું મૂલ્ય નજીકના પૂર્ણાંકમાં કેટલું (% માં) હશે?",
+                    "en": "The time period of a simple pendulum is $T=2\\pi\\sqrt{\\frac{l}{g}}$. The length of the pendulum is measured as 10 cm with 1 mm accuracy. The time for 200 oscillations is measured as 100 seconds with a clock having a least count of 1 s. The percentage error in measuring the value of g by this simple pendulum is x. What will be the value of x in nearest integer (% in)?"
+                },
+                "options": {
+                    "A": { "gu": "2", "en": "2" },
+                    "B": { "gu": "3", "en": "3" },
+                    "C": { "gu": "5", "en": "5" },
+                    "D": { "gu": "4", "en": "4" }
+                }
+            },
+            {
+                "id": 8,
+                "subject": "Physics",
+                "question": {
+                    "gu": {
+                        "intro": "લિસ્ટ – I ને લિસ્ટ - II સાથે સરખાવો:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "(a)", "text": "કેપેસીટન્સ, C"},
+                            {"label": "(b)", "text": "શુન્યાવકાશની પરમિટિવિટી, $\\epsilon_{0}$"},
+                            {"label": "(c)", "text": "શુન્યાવકાશની પરમિએબિલિટી, $\\mu_{0}$"},
+                            {"label": "(d)", "text": "વિદ્યુતક્ષેત્ર, E"}
+                        ],
+                        "list2": [
+                            {"label": "(i)", "text": "$M^{1}L^{1}T^{-3}A^{-1}$"},
+                            {"label": "(ii)", "text": "$M^{-1}L^{-3}T^{4}A^{2}$"},
+                            {"label": "(iii)", "text": "$M^{-1}L^{-2}T^{4}A^{2}$"},
+                            {"label": "(iv)", "text": "$M^{1}L^{1}T^{-2}A^{-2}$"}
+                        ]
+                    },
+                    "en": {
+                        "intro": "Compare List – I with List - II:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "(a)", "text": "Capacitance, C"},
+                            {"label": "(b)", "text": "Permittivity of free space, $\\epsilon_{0}$"},
+                            {"label": "(c)", "text": "Permeability of free space, $\\mu_{0}$"},
+                            {"label": "(d)", "text": "Electric field, E"}
+                        ],
+                        "list2": [
+                            {"label": "(i)", "text": "$M^{1}L^{1}T^{-3}A^{-1}$"},
+                            {"label": "(ii)", "text": "$M^{-1}L^{-3}T^{4}A^{2}$"},
+                            {"label": "(iii)", "text": "$M^{-1}L^{-2}T^{4}A^{2}$"},
+                            {"label": "(iv)", "text": "$M^{1}L^{1}T^{-2}A^{-2}$"}
+                        ]
+                    }
+                },
+                "options": {
+                    "A": { "gu": "$(a)\\rightarrow(iii),(b)\\rightarrow(ii),(c)\\rightarrow(iv),(d)\\rightarrow(i)$", "en": "$(a)\\rightarrow(iii),(b)\\rightarrow(ii),(c)\\rightarrow(iv),(d)\\rightarrow(i)$" },
+                    "B": { "gu": "$(a)\\rightarrow(iii),(b)\\rightarrow(iv),(c)\\rightarrow(ii),(d)\\rightarrow(i)$", "en": "$(a)\\rightarrow(iii),(b)\\rightarrow(iv),(c)\\rightarrow(ii),(d)\\rightarrow(i)$" },
+                    "C": { "gu": "$(a)\\rightarrow(iv),(b)\\rightarrow(ii),(c)\\rightarrow(iii),(d)\\rightarrow(i)$", "en": "$(a)\\rightarrow(iv),(b)\\rightarrow(ii),(c)\\rightarrow(iii),(d)\\rightarrow(i)$" },
+                    "D": { "gu": "$(a)\\rightarrow(iv),(b)\\rightarrow(iii),(c)\\rightarrow(ii),(d)\\rightarrow(i)$", "en": "$(a)\\rightarrow(iv),(b)\\rightarrow(iii),(c)\\rightarrow(ii),(d)\\rightarrow(i)$" }
+                }
+            },
+            {
+                "id": 9,
+                "subject": "Physics",
+                "question": {
+                    "gu": {
+                        "intro": "સૂચિ I અને સૂચિ II મેળવો:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "(A)", "text": "ટોર્ક"},
+                            {"label": "(B)", "text": "પ્રતિબળ"},
+                            {"label": "(C)", "text": "ગુપ્ત ઉષ્મા"},
+                            {"label": "(D)", "text": "કાર્યત્વરા (પાવર)"}
+                        ],
+                        "list2": [
+                            {"label": "(I)", "text": "$N~m~s^{-1}$"},
+                            {"label": "(II)", "text": "$J~kg^{-1}$"},
+                            {"label": "(III)", "text": "$N~m$"},
+                            {"label": "(IV)", "text": "$N~m^{-2}$"}
+                        ]
+                    },
+                    "en": {
+                        "intro": "Match List I and List II:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "(A)", "text": "Torque"},
+                            {"label": "(B)", "text": "Stress"},
+                            {"label": "(C)", "text": "Latent heat"},
+                            {"label": "(D)", "text": "Power"}
+                        ],
+                        "list2": [
+                            {"label": "(I)", "text": "$N~m~s^{-1}$"},
+                            {"label": "(II)", "text": "$J~kg^{-1}$"},
+                            {"label": "(III)", "text": "$N~m$"},
+                            {"label": "(IV)", "text": "$N~m^{-2}$"}
+                        ]
+                    }
+                },
+                "options": {
+                    "A": { "gu": "$(A)-(III),(B)-(II),(C)-(I),(D)-(IV)$", "en": "$(A)-(III),(B)-(II),(C)-(I),(D)-(IV)$" },
+                    "B": { "gu": "$(A)-(III),(B)-(IV),(C)-(II),(D)-(I)$", "en": "$(A)-(III),(B)-(IV),(C)-(II),(D)-(I)$" },
+                    "C": { "gu": "$(A)-(IV),(B)-(I),(C)-(III),(D)-(II)$", "en": "$(A)-(IV),(B)-(I),(C)-(III),(D)-(II)$" },
+                    "D": { "gu": "$(A)-(II),(B)-(III),(C)-(I),(D)-(IV)$", "en": "$(A)-(II),(B)-(III),(C)-(I),(D)-(IV)$" }
+                }
+            },
+            {
+                "id": 10,
+                "subject": "Physics",
+                "question": {
+                    "gu": "$z=a^{2}x^{3}y^{\\frac{1}{2}}$ માટે a અચળાંક છે. જો x અને y ના માપનમાં પ્રતિશત ત્રુટિ અનુક્રમે 4% અને 12% હોય, તો z માટે પ્રતિશત ત્રુટિ ......શે.",
+                    "en": "For $z=a^{2}x^{3}y^{\\frac{1}{2}}$, a is a constant. If the percentage errors in the measurement of x and y are 4% and 12% respectively, then the percentage error for z will be......"
+                },
+                "options": {
+                    "A": { "gu": "18", "en": "18" },
+                    "B": { "gu": "188", "en": "188" },
+                    "C": { "gu": "78", "en": "78" },
+                    "D": { "gu": "15", "en": "15" }
+                }
+            },
+            {
+                "id": 11,
+                "subject": "Physics",
+                "question": {
+                    "gu": "આપણે અવ્યવસ્થિત ત્રુટિ ને શેના દ્વારા ઘટાડી શકીએ છીએ?",
+                    "en": "How can we reduce random error?"
+                },
+                "options": {
+                    "A": { "gu": "મોટી સંખ્યામાં અવલોકન લેવાથી", "en": "By taking a large number of observations" },
+                    "B": { "gu": "શૂન્ય ત્રુટિ સુધારાથી", "en": "By zero error correction" },
+                    "C": { "gu": "પ્રયોગની યોગ્ય તકનિક અનુસરીને", "en": "By following proper experimental technique" },
+                    "D": { "gu": "(a) અને (c) બંને", "en": "Both (a) and (c)" }
+                }
+            },
+            {
+                "id": 12,
+                "subject": "Physics",
+                "question": {
+                    "gu": "એક એસ્ટ્રોનોમિકલ યુનિટ એકમ એ _____ $m$ અંતરને બરાબર છે.",
+                    "en": "One astronomical unit is equal to _____ $m$ distance."
+                },
+                "options": {
+                    "A": { "gu": "$9.46\\times10^{15}$", "en": "$9.46\\times10^{15}$" },
+                    "B": { "gu": "$1.496\\times10^{11}$", "en": "$1.496\\times10^{11}$" },
+                    "C": { "gu": "$3\\times10^{8}$", "en": "$3\\times10^{8}$" },
+                    "D": { "gu": "$3.08\\times10^{16}$", "en": "$3.08\\times10^{16}$" }
+                }
+            },
+            {
+                "id": 13,
+                "subject": "Physics",
+                "question": {
+                    "gu": "જો પૃષ્ઠતાણ (S), જડત્વની ચાકમાત્રા (I) અને પ્લાન્કનો અચળાંક (h) ને મૂળભૂત એકમ તરીકે લેવામાં આવે, તો રેખીય વેગમાનનું પરિમાણિક સૂત્ર શું થશે?",
+                    "en": "If surface tension (S), moment of inertia (I) and Planck's constant (h) are taken as fundamental units, then what will be the dimensional formula of linear momentum?"
+                },
+                "options": {
+                    "A": { "gu": "$S^{1/2}I^{1/2}h^{0}$", "en": "$S^{1/2}I^{1/2}h^{0}$" },
+                    "B": { "gu": "$S^{1/2}I^{3/2}h^{-1}$", "en": "$S^{1/2}I^{3/2}h^{-1}$" },
+                    "C": { "gu": "$S^{3/2}I^{1/2}h^{0}$", "en": "$S^{3/2}I^{1/2}h^{0}$" },
+                    "D": { "gu": "$S^{1/2}I^{1/2}h^{-1}$", "en": "$S^{1/2}I^{1/2}h^{-1}$" }
+                }
+            },
+            {
+                "id": 14,
+                "subject": "Physics",
+                "question": {
+                    "gu": "પાણીની અંદર વિસ્ફોટ થતાં ઉત્પન્ન થયેલ એક પરપોટાના દોલનોનો આવર્તકાળ $P^{a}d^{b}E^{c}$ ના સમપ્રમાણમાં છે. જ્યાં P દબાણ, d પાણીની ઘનતા અને E વિસ્ફોટની ઉર્જા છે. તો a, b અને c ના મૂલ્યો અનુક્રમે કેટલા હશે?",
+                    "en": "The time period of oscillations of a bubble formed by an explosion inside water is proportional to $P^{a}d^{b}E^{c}$. Where P is pressure, d is density of water and E is energy of explosion. What will be the values of a, b and c respectively?"
+                },
+                "options": {
+                    "A": { "gu": "$-\\frac{5}{6}$, $\\frac{1}{2}$, $\\frac{1}{2}$", "en": "$-\\frac{5}{6}$, $\\frac{1}{2}$, $\\frac{1}{2}$" },
+                    "B": { "gu": "$\\frac{1}{2}$, $\\frac{5}{6}$, $-\\frac{1}{2}$", "en": "$\\frac{1}{2}$, $\\frac{5}{6}$, $-\\frac{1}{2}$" },
+                    "C": { "gu": "$\\frac{1}{2}$, $-\\frac{5}{6}$, $\\frac{1}{2}$", "en": "$\\frac{1}{2}$, $-\\frac{5}{6}$, $\\frac{1}{2}$" },
+                    "D": { "gu": "1, 1, 1", "en": "1, 1, 1" }
+                }
+            },
+            {
+                "id": 15,
+                "subject": "Physics",
+                "question": {
+                    "gu": "એક વિદ્યાર્થી આપેલા સમયમાં શરૂઆતમાં સ્થિર રહેલા પદાર્થના મુક્ત પતન દરમિયાન કાપેલા અંતરને માપે છે. તે આ માહિતીનો ઉપયોગ કરીને g, ગુરુત્વાકર્ષણના પ્રવેગનો અંદાજ કાઢે છે. જો અંતર અને સમયના માપનમાં મહત્તમ પ્રતિશત ત્રુટિ અનુક્રમે $e_1$ અને $e_2$ હોય, તો g ના અંદાજમાં પ્રતિશત ત્રુટિ કેટલી હશે?",
+                    "en": "A student measures the distance covered by an object in free fall, starting from rest, in a given time. He uses this information to estimate g, the acceleration due to gravity. If the maximum percentage errors in the measurement of distance and time are $e_1$ and $e_2$ respectively, then what will be the percentage error in the estimation of g?"
+                },
+                "options": {
+                    "A": { "gu": "$e_{2}-e_{1}$", "en": "$e_{2}-e_{1}$" },
+                    "B": { "gu": "$e_{1}+2e_{2}$", "en": "$e_{1}+2e_{2}$" },
+                    "C": { "gu": "$e_{1}+e_{2}$", "en": "$e_{1}+e_{2}$" },
+                    "D": { "gu": "$e_{1}-2e_{2}$", "en": "$e_{1}-2e_{2}$" }
+                }
+            },
+            {
+                "id": 16,
+                "subject": "Physics",
+                "question": {
+                    "gu": "પ્લાન્ક લંબાઈ એટલે એવું કોઈ લાક્ષણિક અંતર કે જ્યાં ક્વોંટમ ગુરુત્વિય અસર નોંધપાત્ર હોય, તેને મૂળભૂત ભૌતિક અચળાંકો G, h અને c ના યોગ્ય મિશ્રણથી દર્શાવી શકાય છે. નીચેનામાથી કયું પ્લાન્ક લંબાઈ દર્શાવે છે?",
+                    "en": "Planck length is a characteristic distance where quantum gravitational effects are significant, which can be expressed by a suitable combination of fundamental physical constants G, h and c. Which of the following represents Planck length?"
+                },
+                "options": {
+                    "A": { "gu": "$G^{2}hc$", "en": "$G^{2}hc$" },
+                    "B": { "gu": "$(\\frac{Gh}{c^{3}})^{\\frac{1}{2}}$", "en": "$(\\frac{Gh}{c^{3}})^{\\frac{1}{2}}$" },
+                    "C": { "gu": "$G^{\\frac{1}{2}}h^{2}c$", "en": "$G^{\\frac{1}{2}}h^{2}c$" },
+                    "D": { "gu": "$Gh^{2}c^{3}$", "en": "$Gh^{2}c^{3}$" }
+                }
+            },
+            {
+                "id": 17,
+                "subject": "Physics",
+                "question": {
+                    "gu": "જો બળ, ઉર્જા અને વેગના એકમને 10 N, 100 J, 5 m/s વડે રજુ કરવામાં આવે, તો લંબાઈ, દળ અને સમયને કઈ રીતે રજુ કરાય?",
+                    "en": "If the units of force, energy and velocity are represented by 10 N, 100 J, 5 m/s, how are length, mass and time represented?"
+                },
+                "options": {
+                    "A": { "gu": "10 m, 5 kg, 1 sec", "en": "10 m, 5 kg, 1 sec" },
+                    "B": { "gu": "10 m, 4 kg, 2 sec", "en": "10 m, 4 kg, 2 sec" },
+                    "C": { "gu": "10 m, 4 kg, 0.5 sec", "en": "10 m, 4 kg, 0.5 sec" },
+                    "D": { "gu": "20 m, 5 kg, 2 sec", "en": "20 m, 5 kg, 2 sec" }
+                }
+            },
+            {
+                "id": 18,
+                "subject": "Physics",
+                "question": {
+                    "gu": "0.005 mm લઘુતમ માપશક્તિ ધરાવતા સ્ક્રૂગેજમાં પદાર્થ મૂક્યા વગર બંધ કરવામાં આવે તો વર્તુળાકાર સ્કેલનો પાંચમો કાંપો મુખ્ય સ્કેલ સાથે બંધ બેસે છે. જ્યારે નાનો ગોળો તેમાં મૂકવામાં આવે ત્યારે મુખ્ય સ્કેલ 4 કાંપા અને વર્તુળાકાર સ્કેલ પદાર્થ મૂક્યા વગર મળતા મૂલ્યથી પાંચ ગણા મૂલ્ય જેટલું ખસે છે. જો વર્તુળાકાર સ્કેલ પર 200 કાંપા હોય તો ગોળાની ત્રિજ્યા કેટલી (mm માં) હશે?",
+                    "en": "In a screw gauge with a least count of 0.005 mm, when the object is closed without placing it, the fifth division of the circular scale coincides with the main scale. When a small sphere is placed in it, the main scale moves 4 divisions and the circular scale moves five times the value obtained without placing the object. If there are 200 divisions on the circular scale, what will be the radius of the sphere (in mm)?"
+                },
+                "options": {
+                    "A": { "gu": "4.10", "en": "4.10" },
+                    "B": { "gu": "4.05", "en": "4.05" },
+                    "C": { "gu": "2.10", "en": "2.10" },
+                    "D": { "gu": "2.05", "en": "2.05" }
+                }
+            },
+            {
+                "id": 19,
+                "subject": "Physics",
+                "question": {
+                    "gu": "A, B, C અને D એ ચાર અલગ અલગ પરિમાણ ધરાવતી અલગ અલગ ભૌતિક રાશિઓ છે. તે પૈકી કોઈપણ પરિમાણરહિત નથી, પરંતુ $AD=C~ln(BD)$ સૂત્ર સાચું છે. તો નીચે પૈકી કયો સંબંધ નિરર્થક રાશી છે?",
+                    "en": "A, B, C and D are four different physical quantities with different dimensions. None of them are dimensionless, but the formula $AD=C~ln(BD)$ is correct. So which of the following relations is a meaningless quantity?"
+                },
+                "options": {
+                    "A": { "gu": "$\\frac{C}{BD}-\\frac{AD^{2}}{C}$", "en": "$\\frac{C}{BD}-\\frac{AD^{2}}{C}$" },
+                    "B": { "gu": "$A^{2}-B^{2}C^{2}$", "en": "$A^{2}-B^{2}C^{2}$" },
+                    "C": { "gu": "$\\frac{A}{B}-C$", "en": "$\\frac{A}{B}-C$" },
+                    "D": { "gu": "$\\frac{(A-C)}{D}$", "en": "$\\frac{(A-C)}{D}$" }
+                }
+            },
+            {
+                "id": 20,
+                "subject": "Physics",
+                "question": {
+                    "gu": "કોઈ ભૌતિક રાશિ P નું સૂત્ર $P=a^{1/2}b^{2}c^{3}d^{-4}$ થી દર્શાવેલ છે. જો a, b, c અને d ના માપનમાં રહેલી સાપેક્ષ ત્રુટિ અનુક્રમે 2%, 1%, 3% અને 5% હોય, તો P માં રહેલી સાપેક્ષ ત્રુટિ _____ % હશે.",
+                    "en": "A physical quantity P is represented by the formula $P=a^{1/2}b^{2}c^{3}d^{-4}$. If the relative errors in the measurement of a, b, c and d are 2%, 1%, 3% and 5% respectively, then the relative error in P will be _____ %."
+                },
+                "options": {
+                    "A": { "gu": "8", "en": "8" },
+                    "B": { "gu": "12", "en": "12" },
+                    "C": { "gu": "32", "en": "32" },
+                    "D": { "gu": "25", "en": "25" }
+                }
+            },
+            {
+                "id": 21,
+                "subject": "Physics",
+                "question": {
+                    "gu": "અવરોધના મૂલ્યો $R_{1}=3\\Omega\\pm1\%$ અને $R_{2}=6\\Omega\\pm2\%$ છે જ્યારે તેમને સમાંતરમાં જોડવામાં આવે ત્યારે તેમના સમતુલ્ય અવરોધમાં ત્રુટિ _____ % થાય.",
+                    "en": "The resistance values are $R_{1}=3\\Omega\\pm1\%$ and $R_{2}=6\\Omega\\pm2\%$. When they are connected in parallel, the error in their equivalent resistance is _____ %."
+                },
+                "options": {
+                    "A": { "gu": "3", "en": "3" },
+                    "B": { "gu": "4.5", "en": "4.5" },
+                    "C": { "gu": "0.67", "en": "0.67" },
+                    "D": { "gu": "1.33", "en": "1.33" }
+                }
+            },
+            {
+                "id": 22,
+                "subject": "Physics",
+                "question": {
+                    "gu": "કોઇ એક પ્રયોગમાં a, b, c અને d એમ ચાર રાશિઓનું ક્રમશ: 1%, 2%, 3% અને 4% ની પ્રતિશત ત્રુટિ સાથે માપન કરવામાં આવે છે. P રાશિની ગણતરી $P=\\frac{a^{3}b^{2}}{cd}$ પ્રમાણે કરવામાં આવે છે. P માં પ્રતિશત ત્રુટિ કેટલી હશે?",
+                    "en": "In an experiment, four quantities a, b, c and d are measured with percentage errors of 1%, 2%, 3% and 4% respectively. The quantity P is calculated as $P=\\frac{a^{3}b^{2}}{cd}$. What will be the percentage error in P?"
+                },
+                "options": {
+                    "A": { "gu": "14", "en": "14" },
+                    "B": { "gu": "10", "en": "10" },
+                    "C": { "gu": "7", "en": "7" },
+                    "D": { "gu": "4", "en": "4" }
+                }
+            },
+            {
+                "id": 23,
+                "subject": "Physics",
+                "question": {
+                    "gu": "પારિમાણિક સૂત્ર શું થાય? જયાં B = ચુંબકીય ક્ષેત્ર, l = લંબાઇ, m =દળ અને P એ પાવર હોય, તો $P=\\frac{B^{2}l^{2}}{m}$ નું પારિમાણિક સૂત્ર શું થાય?",
+                    "en": "What is the dimensional formula? Where B = magnetic field, l = length, m = mass and P is power, what is the dimensional formula of $P=\\frac{B^{2}l^{2}}{m}$?"
+                },
+                "options": {
+                    "A": { "gu": "$MLT^{-3}$", "en": "$MLT^{-3}$" },
+                    "B": { "gu": "$ML^{2}T^{-4}I^{-2}$", "en": "$ML^{2}T^{-4}I^{-2}$" },
+                    "C": { "gu": "$M^{2}L^{2}T^{-4}I$", "en": "$M^{2}L^{2}T^{-4}I$" },
+                    "D": { "gu": "$MLT^{-2}I^{-2}$", "en": "$MLT^{-2}I^{-2}$" }
+                }
+            },
+            {
+                "id": 24,
+                "subject": "Physics",
+                "question": {
+                    "gu": "પ્રતિશત ત્રુટીનો એકમ શું થાય?",
+                    "en": "What is the unit of percentage error?"
+                },
+                "options": {
+                    "A": { "gu": "તેની ભૌતિક રાશિ જેવો થાય", "en": "It is similar to its physical quantity" },
+                    "B": { "gu": "તેની ભૌતિક રાશિથી અલગ થાય", "en": "It is different from its physical quantity" },
+                    "C": { "gu": "પ્રતિશત ત્રુટી એકમ રહિત છે", "en": "Percentage error is unitless" },
+                    "D": { "gu": "ત્રુટીને પોતાનો એકમ હોય છે જે માપેલી ભૌતિક રાશિ કરતાં અલગ હોય છે", "en": "Error has its own unit which is different from the measured physical quantity" }
+                }
+            },
+            {
+                "id": 25,
+                "subject": "Physics",
+                "question": {
+                    "gu": "પદાર્થનું સ્થાન $x=Ka^{m}t^{n}$, જયાં a પ્રવેગ અને t સમય હોય, તો m અને n ના મૂલ્યો શું હોવા જોઈએ?",
+                    "en": "The position of an object is $x=Ka^{m}t^{n}$, where a is acceleration and t is time, then what should be the values of m and n?"
+                },
+                "options": {
+                    "A": { "gu": "$m=1, n=1$", "en": "$m=1, n=1$" },
+                    "B": { "gu": "$m=1$, $n=2$", "en": "$m=1$, $n=2$" },
+                    "C": { "gu": "$m=2$, $n=1$", "en": "$m=2$, $n=1$" },
+                    "D": { "gu": "$m=2, n=2$", "en": "$m=2, n=2$" }
+                }
+            },
+            {
+                "id": 26,
+                "subject": "Physics",
+                "question": {
+                    "gu": "સમાન પરિમાણવાળી ભૌતિક રાશિ ના જોડકા દર્શાવો.",
+                    "en": "Show pairs of physical quantities with same dimensions."
+                },
+                "options": {
+                    "A": { "gu": "રેનોલ્ડ અંક અને ઘર્ષણાંક", "en": "Reynolds number and coefficient of friction" },
+                    "B": { "gu": "આંતરિક ઉષ્મા અને ગુરુત્વાકર્ષણનું સ્થિતિમાન", "en": "Internal heat and gravitational potential" },
+                    "C": { "gu": "ક્યુરી અને પ્રકાશના તરંગની આવૃત્તિ", "en": "Curie and frequency of light wave" },
+                    "D": { "gu": "આપેલ તમામ", "en": "All of the above" }
+                }
+            },
+            {
+                "id": 27,
+                "subject": "Physics",
+                "question": {
+                    "gu": "પદાર્થની સાપેક્ષ ઘનતા શોધવા માટે તેનું વજન પહેલા હવામાં ને પછી પાણીમાં કરવામાં આવે છે. જો હવામાં તેનું વજન $(5.00\\pm0.05)$ ન્યુટન અને પાણીમાં તેનું વજન $(4.00\\pm0.05)$ ન્યુટન મળતું હોય તો તેની સાપેક્ષ ઘનતા મહત્તમ પ્રતિશત ત્રુટિ સાથે શોધો.",
+                    "en": "To find the relative density of a substance, its weight is first taken in air and then in water. If its weight in air is $(5.00\\pm0.05)$ Newton and its weight in water is $(4.00\\pm0.05)$ Newton, then find its relative density with maximum percentage error."
+                },
+                "options": {
+                    "A": { "gu": "$5.0\\pm11\\%$", "en": "$5.0\\pm11\\%$" },
+                    "B": { "gu": "$5.0\\pm1\\%$", "en": "$5.0\\pm1\\%$" },
+                    "C": { "gu": "$5.0\\pm6\\%$", "en": "$5.0\\pm6\\%$" },
+                    "D": { "gu": "$1.25\\pm5\\%$", "en": "$1.25\\pm5\\%$" }
+                }
+            },
+            {
+                "id": 28,
+                "subject": "Physics",
+                "question": {
+                    "gu": "1 આણ્વિય દળ નો એકમ _____ MeV ને સમાન હોય છે.",
+                    "en": "1 atomic mass unit is equal to _____ MeV."
+                },
+                "options": {
+                    "A": { "gu": "39", "en": "39" },
+                    "B": { "gu": "93", "en": "93" },
+                    "C": { "gu": "139", "en": "139" },
+                    "D": { "gu": "931.5", "en": "931.5" }
+                }
+            },
+            {
+                "id": 29,
+                "subject": "Physics",
+                "question": {
+                    "gu": "કોઈ ભૌતિક રાશિ P નું સમય આધારિત સમીકરણ $P=P_{0}exp^{(-\\alpha t^{2})}$ છે. જ્યાં $\\alpha$ અચળાંક અને t સમય છે. અચળાંક $\\alpha$ નું પરિમાણ",
+                    "en": "The time-dependent equation of a physical quantity P is $P=P_{0}exp^{(-\\alpha t^{2})}$. Where $\\alpha$ is a constant and t is time. The dimension of constant $\\alpha$ is"
+                },
+                "options": {
+                    "A": { "gu": "પરિમાણ વિહિન", "en": "Dimensionless" },
+                    "B": { "gu": "$T^{-2}$ ના પરિમાણ જેવું", "en": "Similar to dimension of $T^{-2}$" },
+                    "C": { "gu": "Pનું પરિમાણ જેવું", "en": "Similar to dimension of P" },
+                    "D": { "gu": "$T^{2}$ નું પરિમાણ જેવું", "en": "Similar to dimension of $T^{2}$" }
+                }
+            },
+            {
+                "id": 30,
+                "subject": "Physics",
+                "question": {
+                    "gu": "ચોકસાઈ વાળા તંત્રમાં લંબાઈ, દળ અને સમયના એકમો અનુક્રમે 10 cm, 10 g અને 0.1 s પસંદ કરેલા છે. આ તંત્રમાં બળનું મૂલ્ય _____ N હશે.",
+                    "en": "In a precision system, the units of length, mass and time are chosen as 10 cm, 10 g and 0.1 s respectively. The value of force in this system will be _____ N."
+                },
+                "options": {
+                    "A": { "gu": "0.1", "en": "0.1" },
+                    "B": { "gu": "1", "en": "1" },
+                    "C": { "gu": "10", "en": "10" },
+                    "D": { "gu": "100", "en": "100" }
+                }
+            },
+            {
+                "id": 31,
+                "subject": "Physics",
+                "question": {
+                    "gu": "એક ભૌતિક રાશિ x નું પારિમાણિક સૂત્ર $M^{-1}L^{3}T^{-2}$ છે. L, M અને T ના માપનમાં અનુક્રમે ત્રુટિઓ 3%, 2% અને 4% છે. તો x ના માપનમાં મહત્તમ પ્રતિશત ત્રુટિ _____ %",
+                    "en": "The dimensional formula of a physical quantity x is $M^{-1}L^{3}T^{-2}$. The errors in the measurement of L, M and T are 3%, 2% and 4% respectively. What is the maximum percentage error in the measurement of x is _____ %."
+                },
+                "options": {
+                    "A": { "gu": "9", "en": "9" },
+                    "B": { "gu": "10", "en": "10" },
+                    "C": { "gu": "14", "en": "14" },
+                    "D": { "gu": "19", "en": "19" }
+                }
+            },
+            {
+                "id": 32,
+                "subject": "Physics",
+                "question": {
+                    "gu": "બળ = X/ઘનતા સૂત્રમાં X નું પારિમાણિક સૂત્ર શું થાય?",
+                    "en": "What is the dimensional formula of X in the formula Force = X/density?"
+                },
+                "options": {
+                    "A": { "gu": "$M^{1}L^{4}T^{-2}$", "en": "$M^{1}L^{4}T^{-2}$" },
+                    "B": { "gu": "$M^{2}L^{-2}T^{-1}$", "en": "$M^{2}L^{-2}T^{-1}$" },
+                    "C": { "gu": "$M^{2}L^{-2}T^{-2}$", "en": "$M^{2}L^{-2}T^{-2}$" },
+                    "D": { "gu": "$M^{1}L^{-2}T^{-1}$", "en": "$M^{1}L^{-2}T^{-1}$" }
+                }
+            },
+            {
+                "id": 33,
+                "subject": "Physics",
+                "question": {
+                    "gu": "સરળ આવર્તગતિ કરતા પદાર્થનો આવર્તકાળ $T=P^{a}D^{b}S^{c}$. જયાં P દબાણ, D ઘનતા અને S પૃષ્ઠતાણ હોય, તો a, b અને c ના મૂલ્યો કેટલા હોવા જોઈએ?",
+                    "en": "The time period of an object performing simple harmonic motion is $T=P^{a}D^{b}S^{c}$. Where P is pressure, D is density and S is surface tension, then what should be the values of a, b and c?"
+                },
+                "options": {
+                    "A": { "gu": "$-\\frac{3}{2}$, $\\frac{1}{2}$, 1", "en": "$-\\frac{3}{2}$, $\\frac{1}{2}$, 1" },
+                    "B": { "gu": "-1, -2, 3", "en": "-1, -2, 3" },
+                    "C": { "gu": "$-\\frac{1}{2}$, $\\frac{1}{2}$, $\\frac{1}{2}$", "en": "$-\\frac{1}{2}$, $\\frac{1}{2}$, $\\frac{1}{2}$" },
+                    "D": { "gu": "1, 2, $\\frac{1}{3}$", "en": "1, 2, $\\frac{1}{3}$" }
+                }
+            },
+            {
+                "id": 34,
+                "subject": "Physics",
+                "question": {
+                    "gu": "ઇલેક્ટ્રોન-વોલ્ટ એ શાનો એકમ છે?",
+                    "en": "Electron-volt is a unit of what?"
+                },
+                "options": {
+                    "A": { "gu": "વિદ્યુતભાર", "en": "Charge" },
+                    "B": { "gu": "સ્થિતિમાનનો ફેરફાર", "en": "Potential difference" },
+                    "C": { "gu": "વેગમાન", "en": "Momentum" },
+                    "D": { "gu": "ઉર્જા", "en": "Energy" }
+                }
+            },
+            {
+                "id": 35,
+                "subject": "Physics",
+                "question": {
+                    "gu": "Parsec એ શેનો એકમ છે?",
+                    "en": "Parsec is a unit of what?"
+                },
+                "options": {
+                    "A": { "gu": "અંતર", "en": "Distance" },
+                    "B": { "gu": "વેગ", "en": "Velocity" },
+                    "C": { "gu": "સમય", "en": "Time" },
+                    "D": { "gu": "ખૂણો", "en": "Angle" }
+                }
+            },
+            {
+                "id": 36,
+                "subject": "Physics",
+                "question": {
+                    "gu": "e.m.f. નો એકમ શું થાય?",
+                    "en": "What is the unit of e.m.f.?"
+                },
+                "options": {
+                    "A": { "gu": "જૂલ", "en": "Joule" },
+                    "B": { "gu": "જૂલ-કુલંબ", "en": "Joule-Coulomb" },
+                    "C": { "gu": "વોલ્ટ-કુલંબ", "en": "Volt-Coulomb" },
+                    "D": { "gu": "જૂલ/કુલંબ", "en": "Joule/Coulomb" }
+                }
+            },
+            {
+                "id": 37,
+                "subject": "Physics",
+                "question": {
+                    "gu": "તારનો યંગ મોડયુલસ $Y=\\frac{FL}{A\\Delta L}$; જયાં L = લંબાઇ, A = આડછેદનું ક્ષેત્રફળ અને $\\Delta L$ = લંબાઇમાં થતો ફેરફાર, તો CGS માંથી MKS માં જવા માટે $10^{-1} N/m^{2}$ વડે ગુણાકાર કરવો પડે?",
+                    "en": "Young's modulus of a wire is $Y=\\frac{FL}{A\\Delta L}$; where L = length, A = area of cross-section and $\\Delta L$ = change in length, then to convert from CGS to MKS, should it be multiplied by $10^{-1} N/m^{2}$?"
+                },
+                "options": {
+                    "A": { "gu": "100", "en": "100" },
+                    "B": { "gu": "10", "en": "10" },
+                    "C": { "gu": "1", "en": "1" },
+                    "D": { "gu": "0.01", "en": "0.01" }
+                }
+            },
+            {
+                "id": 38,
+                "subject": "Physics",
+                "question": {
+                    "gu": {
+                        "intro": "લિસ્ટ-I ને લિસ્ટ-II સાથે યોગ્ય રીતે જોડો:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "I-", "text": "(Joule)"},
+                            {"label": "II-", "text": "વોટ (Watt)"},
+                            {"label": "III-", "text": "વોલ્ટ (Volt)"},
+                            {"label": "IV-", "text": "(Coulomb)"}
+                        ],
+                        "list2": [
+                            {"label": "A-", "text": "Henry $\\times$ Amp/sec"},
+                            {"label": "B-", "text": "Farad"},
+                            {"label": "C-", "text": "Coulomb Volt"},
+                            {"label": "D-", "text": "Oersted cm"},
+                            {"label": "E-", "text": "Amp $\\times$ Gauss"},
+                            {"label": "F-", "text": "$Amp^{2}\\times Ohm$"}
+                        ]
+                    },
+                    "en": {
+                        "intro": "Match List-I with List-II:",
+                        "type": "match_the_following",
+                        "list1": [
+                            {"label": "I-", "text": "(Joule)"},
+                            {"label": "II-", "text": "Watt"},
+                            {"label": "III-", "text": "Volt"},
+                            {"label": "IV-", "text": "Coulomb"}
+                        ],
+                        "list2": [
+                            {"label": "A-", "text": "Henry $\\times$ Amp/sec"},
+                            {"label": "B-", "text": "Farad"},
+                            {"label": "C-", "text": "Coulomb Volt"},
+                            {"label": "D-", "text": "Oersted cm"},
+                            {"label": "E-", "text": "Amp $\\times$ Gauss"},
+                            {"label": "F-", "text": "$Amp^{2}\\times Ohm$"}
+                        ]
+                    }
+                },
+                "options": {
+                    "A": { "gu": "I-A, II-F, III-E, IV-D", "en": "I-A, II-F, III-E, IV-D" },
+                    "B": { "gu": "I-C, II-F, III-A, IV-B", "en": "I-C, II-F, III-A, IV-B" },
+                    "C": { "gu": "I-C, II-F, III-A, IV-E", "en": "I-C, II-F, III-A, IV-E" },
+                    "D": { "gu": "I-B, II-F, III-A, IV-C", "en": "I-B, II-F, III-A, IV-C" }
+                }
+            },
+            {
+                "id": 39,
+                "subject": "Physics",
+                "question": {
+                    "gu": "અવરોધકતાનો એકમ શું થાય?",
+                    "en": "What is the unit of resistivity?"
+                },
+                "options": {
+                    "A": { "gu": "$Ohm/cm^{2}$", "en": "$Ohm/cm^{2}$" },
+                    "B": { "gu": "Ohm/cm", "en": "Ohm/cm" },
+                    "C": { "gu": "Ohm", "en": "Ohm" },
+                    "D": { "gu": "$cm~(Ohm-cm)^{-1}$", "en": "$cm~(Ohm-cm)^{-1}$" }
+                }
+            },
+            {
+                "id": 40,
+                "subject": "Physics",
+                "question": {
+                    "gu": "ટોર (Torr) એ કઈ રાશિનો એકમ છે?",
+                    "en": "Torr is a unit of which quantity?"
+                },
+                "options": {
+                    "A": { "gu": "દબાણ", "en": "Pressure" },
+                    "B": { "gu": "બળ", "en": "Force" },
+                    "C": { "gu": "ઘનતા", "en": "Density" },
+                    "D": { "gu": "ફ્લક્સ", "en": "Flux" }
+                }
+            },
+            {
+                "id": 41,
+                "subject": "Physics",
+                "question": {
+                    "gu": "નીચે પૈકી કયો ઉર્જાનો એકમ નથી?",
+                    "en": "Which of the following is not a unit of energy?"
+                },
+                "options": {
+                    "A": { "gu": "કેલરી", "en": "Calorie" },
+                    "B": { "gu": "જૂલ", "en": "Joule" },
+                    "C": { "gu": "ઇલેક્ટ્રોન વોલ્ટ", "en": "Electron Volt" },
+                    "D": { "gu": "વોટ", "en": "Watt" }
+                }
+            },
+            {
+                "id": 42,
+                "subject": "Physics",
+                "question": {
+                    "gu": "$L/R$ નો એકમ શું થશે? (જયાં L = ઇન્ડકટન્સ અને R = અવરોધ)",
+                    "en": "What will be the unit of $L/R$? (Where L = Inductance and R = Resistance)"
+                },
+                "options": {
+                    "A": { "gu": "sec", "en": "sec" },
+                    "B": { "gu": "$sec^{-1}$", "en": "$sec^{-1}$" },
+                    "C": { "gu": "Volt", "en": "Volt" },
+                    "D": { "gu": "Ampere", "en": "Ampere" }
+                }
+            },
+            {
+                "id": 43,
+                "subject": "Physics",
+                "question": {
+                    "gu": "પૃષ્ઠતાણનો SI એકમ",
+                    "en": "SI unit of surface tension"
+                },
+                "options": {
+                    "A": { "gu": "Dyne/cm²", "en": "Dyne/cm²" },
+                    "B": { "gu": "Newton/m", "en": "Newton/m" },
+                    "C": { "gu": "Dyne/cm", "en": "Dyne/cm" },
+                    "D": { "gu": "Newton/m²", "en": "Newton/m²" }
+                }
+            },
+            {
+                "id": 44,
+                "subject": "Physics",
+                "question": {
+                    "gu": "આત્મપ્રેરણ નો એકમ શું છે?",
+                    "en": "What is the unit of self-inductance?"
+                },
+                "options": {
+                    "A": { "gu": "ફેરાડે", "en": "Farad" },
+                    "B": { "gu": "હેનરી", "en": "Henry" },
+                    "C": { "gu": "વેબર", "en": "Weber" },
+                    "D": { "gu": "ટેસ્લા", "en": "Tesla" }
+                }
+            },
+            {
+                "id": 45,
+                "subject": "Physics",
+                "question": {
+                    "gu": "એક માઇક્રોમીટર =",
+                    "en": "One micrometer ="
+                },
+                "options": {
+                    "A": { "gu": "$1~micron=10^{-8}~cm$", "en": "$1~micron=10^{-8}~cm$" },
+                    "B": { "gu": "$1~micron=10^{-6}~cm$", "en": "$1~micron=10^{-6}~cm$" },
+                    "C": { "gu": "$1~micron=10^{-5}~cm$", "en": "$1~micron=10^{-5}~cm$" },
+                    "D": { "gu": "$1~micron=10^{-4}~cm$", "en": "$1~micron=10^{-4}~cm$" }
+                }
+            }
+        ];
+
+        // Answer key for Physics questions (1-45)
+        const answerKey = {
+            "1": "D", "2": "B", "3": "C", "4": "B", "5": "A", "6": "B", "7": "B", "8": "A", "9": "B", "10": "A",
+            "11": "A", "12": "B", "13": "A", "14": "A", "15": "B", "16": "B", "17": "B", "18": "D", "19": "D", "20": "C",
+            "21": "D", "22": "A", "23": "B", "24": "C", "25": "B", "26": "D", "27": "A", "28": "D", "29": "B", "30": "A",
+            "31": "D", "32": "C", "33": "A", "34": "D", "35": "A", "36": "D", "37": "C", "38": "B", "39": "C", "40": "A",
+            "41": "D", "42": "A", "43": "B", "44": "B", "45": "D"
+        };
+
+        let currentQuestionIndex = 0;
+        let userSelections = {};
+        let currentLanguage = 'gu';
+        let totalQuestions = questionsData.length;
+
+        const mainQuizHeader = document.getElementById('main-quiz-header');
+        const homeScreen = document.getElementById('home-screen');
+        const chapterInfo = document.getElementById('chapter-info');
+        const questionsCount = document.getElementById('questions-count');
+        const scoringInfo = document.getElementById('scoring-info');
+        const resultsInfo = document.getElementById('results-info');
+        const startQuizButton = document.getElementById('start-quiz-button');
+        const startQuizButtonSpan = startQuizButton.querySelector('span');
+
+        const quizContentElement = document.getElementById('quiz-content');
+        const questionTextElement = document.getElementById('question-text');
+        const optionsListElement = document.getElementById('options-list');
+        const prevButton = document.getElementById('prev-button');
+        const prevButtonSpan = prevButton.querySelector('span');
+        const nextButton = document.getElementById('next-button');
+        const nextButtonSpan = nextButton.querySelector('span');
+        const endButton = document.getElementById('end-button');
+        const endButtonSpan = endButton.querySelector('span');
+        const messageBox = document.getElementById('message-box');
+        const languageSelect = document.getElementById('language-select');
+        const resultScreen = document.getElementById('result-screen');
+        const scoreTextElement = document.getElementById('score-text');
+        const restartButton = document.getElementById('restart-button');
+        const restartButtonSpan = restartButton.querySelector('span');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const progressBar = document.getElementById('progress-bar');
+        const correctAnswersElement = document.getElementById('correct-answers');
+        const incorrectAnswersElement = document.getElementById('incorrect-answers');
+        const scorePercentageElement = document.getElementById('score-percentage');
+        const showAnswersButton = document.getElementById('show-answers-button');
+        const answerKeyContainer = document.getElementById('answer-key-container');
+        const answerKeyGrid = document.getElementById('answer-key-grid');
+        const correctAnswersLabel = document.getElementById('correct-answers-label');
+        const incorrectAnswersLabel = document.getElementById('incorrect-answers-label');
+        const scorePercentageLabel = document.getElementById('score-percentage-label');
+
+        // Text content for different languages
+        const textContent = {
+            "gu": {
+                "header": "ભૌતિકશાસ્ત્ર ક્વિઝ",
+                "chapter": "પ્રકરણ : 01",
+                "questionsCount": `ક્વિઝમાં ${totalQuestions} પ્રશ્નો છે`,
+                "scoring": "દરેક સાચા જવાબ માટે +4 ગુણ અને ખોટા જવાબ માટે -1 ગુણ",
+                "results": "પરિણામ અંતમાં બતાવવામાં આવશે",
+                "startQuiz": "ક્વિઝ શરૂ કરો",
+                "previous": "પાછળ",
+                "next": "આગળ",
+                "endQuiz": "ક્વિઝ સમાપ્ત કરો",
+                "showResults": "પરિણામ બતાવો",
+                "totalScore": "તમારો કુલ સ્કોર:",
+                "restartQuiz": "ક્વિઝ ફરી શરૂ કરો",
+                "correctAnswers": "સાચા જવાબો:",
+                "incorrectAnswers": "ખોટા જવાબો:",
+                "scorePercentage": "સ્કોર ટકાવારી:",
+                "showAnswerKey": "જવાબ કી બતાવો"
+            },
+            "en": {
+                "header": "PHYSICS QUIZ",
+                "chapter": "CHAPTER : 01",
+                "questionsCount": `QUIZ CONTAINS ${totalQuestions} questions`,
+                "scoring": "EACH RIGHT ANSWER +4 MARKS and WRONG ANSWER -1 MARKS",
+                "results": "Results will be shown at the end",
+                "startQuiz": "Start Quiz",
+                "previous": "Previous",
+                "next": "Next",
+                "endQuiz": "End Quiz",
+                "showResults": "Show Results",
+                "totalScore": "Your Total Score:",
+                "restartQuiz": "Restart Quiz",
+                "correctAnswers": "Correct Answers:",
+                "incorrectAnswers": "Incorrect Answers:",
+                "scorePercentage": "Score Percentage:",
+                "showAnswerKey": "Show Answer Key"
+            }
+        };
+
+        // Function to update all text elements based on current language
+        function updateLanguageText() {
+            mainQuizHeader.textContent = textContent[currentLanguage].header;
+            chapterInfo.textContent = textContent[currentLanguage].chapter;
+            questionsCount.textContent = textContent[currentLanguage].questionsCount;
+            scoringInfo.textContent = textContent[currentLanguage].scoring;
+            resultsInfo.textContent = textContent[currentLanguage].results;
+            startQuizButtonSpan.textContent = textContent[currentLanguage].startQuiz;
+            prevButtonSpan.textContent = textContent[currentLanguage].previous;
+            nextButtonSpan.textContent = textContent[currentLanguage].next;
+            endButtonSpan.textContent = textContent[currentLanguage].endQuiz;
+            restartButtonSpan.textContent = textContent[currentLanguage].restartQuiz;
+            showAnswersButton.querySelector('span').textContent = textContent[currentLanguage].showAnswerKey;
+            correctAnswersLabel.textContent = textContent[currentLanguage].correctAnswers;
+            incorrectAnswersLabel.textContent = textContent[currentLanguage].incorrectAnswers;
+            scorePercentageLabel.textContent = textContent[currentLanguage].scorePercentage;
+            totalQuestionsElement.textContent = totalQuestions;
+
+            if (currentQuestionIndex === totalQuestions - 1) {
+                nextButtonSpan.textContent = textContent[currentLanguage].showResults;
+            } else {
+                nextButtonSpan.textContent = textContent[currentLanguage].next;
+            }
+
+            // Re-render the current question if quiz content is visible
+            if (quizContentElement.classList.contains('show')) {
+                renderQuestion(currentQuestionIndex);
+            }
+            // Update score text if result screen is visible
+            if (resultScreen.classList.contains('show')) {
+                showResults();
+            }
+        }
+
+        // Function to display messages to the user
+        function showMessage(message, duration = 3000) {
+            messageBox.textContent = message;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+
+        // Function to render a question and its options based on current language
+        function renderQuestion(index) {
+            // Hide result screen if visible
+            resultScreen.classList.remove('show');
+            homeScreen.classList.remove('show');
+            quizContentElement.classList.add('show');
+
+            if (index < 0 || index >= totalQuestions) {
+                showResults();
+                return;
+            }
+
+            const question = questionsData[index];
+            const currentQuestionData = question.question[currentLanguage];
+
+            // Update progress bar
+            const progressPercentage = ((index + 1) / totalQuestions) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            
+            // Update question counter
+            currentQuestionElement.textContent = index + 1;
+
+            // Clear previous content
+            questionTextElement.innerHTML = '';
+            optionsListElement.innerHTML = '';
+
+            // Check question type and render accordingly
+            if (typeof currentQuestionData === 'object' && currentQuestionData.type === 'match_the_following') {
+                questionTextElement.innerHTML = `<p class="mb-4">${currentQuestionData.intro}</p>`;
+                let tableHtml = `<div class="flex justify-center w-full">
+                                    <table class="match-table w-full max-w-md">
+                                        <thead>
+                                            <tr>
+                                                <th>List-I</th>
+                                                <th>List-II</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                for (let i = 0; i < Math.max(currentQuestionData.list1.length, currentQuestionData.list2.length); i++) {
+                    const item1 = currentQuestionData.list1[i] || { label: '', text: '' };
+                    const item2 = currentQuestionData.list2[i] || { label: '', text: '' };
+                    tableHtml += `<tr>
+                                    <td>${item1.label} ${item1.text}</td>
+                                    <td>${item2.label} ${item2.text}</td>
+                                  </tr>`;
+                }
+                tableHtml += `</tbody></table></div>`;
+                questionTextElement.innerHTML += tableHtml;
+            } else if (typeof currentQuestionData === 'object' && currentQuestionData.type === 'data_table') {
+                questionTextElement.innerHTML = `<p class="mb-4">${currentQuestionData.intro}</p>`;
+                let tableHtml = `<div class="flex justify-center w-full">
+                                    <table class="data-table w-full max-w-lg">
+                                        <thead>
+                                            <tr>`;
+                currentQuestionData.headers.forEach(header => {
+                    tableHtml += `<th>${header[currentLanguage]}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+                currentQuestionData.rows.forEach(row => {
+                    tableHtml += `<tr>`;
+                    row.forEach(cell => {
+                        tableHtml += `<td>${cell[currentLanguage]}</td>`;
+                    });
+                    tableHtml += `</tr>`;
+                });
+                tableHtml += `</tbody></table></div>`;
+                questionTextElement.innerHTML += tableHtml;
+                if (currentQuestionData.conclusion) {
+                    questionTextElement.innerHTML += `<p class="mt-4">${currentQuestionData.conclusion}</p>`;
+                }
+            } else {
+                questionTextElement.innerHTML = `<strong>Q${question.id}.</strong> ${currentQuestionData}`;
+            }
+
+            // Render options
+            for (const key in question.options) {
+                const optionValue = question.options[key][currentLanguage];
+                const optionItem = document.createElement('li');
+                optionItem.className = 'option-item';
+                optionItem.innerHTML = `<span class="option-label">${key}</span> ${optionValue}`;
+                optionItem.dataset.optionKey = key;
+
+                // Mark as selected if previously chosen
+                if (userSelections[question.id] === key) {
+                    optionItem.classList.add('selected');
+                }
+
+                optionItem.addEventListener('click', () => {
+                    // Remove 'selected' class from all options for this question
+                    Array.from(optionsListElement.children).forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    // Add 'selected' class to the clicked option
+                    optionItem.classList.add('selected');
+                    // Store the user's selection
+                    userSelections[question.id] = key;
+                });
+                optionsListElement.appendChild(optionItem);
+            }
+
+            // Update navigation button states
+            prevButton.disabled = currentQuestionIndex === 0;
+
+            // Change "Next" button text to "Submit & Show Results" on the last question
+            if (currentQuestionIndex === totalQuestions - 1) {
+                nextButtonSpan.textContent = textContent[currentLanguage].showResults;
+            } else {
+                nextButtonSpan.textContent = textContent[currentLanguage].next;
+            }
+
+            // Re-render MathJax after updating content
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([questionTextElement, optionsListElement]).catch((err) => console.error("MathJax typesetting failed:", err));
+            }
+        }
+
+        // Function to calculate and display results
+        function showResults() {
+            quizContentElement.classList.remove('show');
+            homeScreen.classList.remove('show');
+            resultScreen.classList.add('show');
+            answerKeyContainer.style.display = 'none';
+
+            let totalScore = 0;
+            let correctAnswers = 0;
+            let incorrectAnswers = 0;
+            
+            questionsData.forEach(question => {
+                const questionId = question.id.toString();
+                const userAnswer = userSelections[questionId];
+                const correctAnswer = answerKey[questionId];
+
+                if (userAnswer && userAnswer === correctAnswer) {
+                    totalScore += 4;
+                    correctAnswers++;
+                } else if (userAnswer && userAnswer !== correctAnswer) {
+                    totalScore -= 1;
+                    incorrectAnswers++;
+                }
+            });
+            
+            const unanswered = totalQuestions - (correctAnswers + incorrectAnswers);
+            const percentage = Math.max(0, Math.round((totalScore / (totalQuestions * 4)) * 100));
+
+            scoreTextElement.textContent = `${textContent[currentLanguage].totalScore} ${totalScore}`;
+            correctAnswersElement.textContent = `${correctAnswers}`;
+            incorrectAnswersElement.textContent = `${incorrectAnswers}`;
+            scorePercentageElement.textContent = `${percentage}%`;
+        }
+
+        // Function to show the answer key
+        function showAnswerKey() {
+            answerKeyGrid.innerHTML = '';
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                const answerItem = document.createElement('div');
+                answerItem.className = 'answer-item';
+                answerItem.innerHTML = `
+                    <div class="question-num">Q${i}</div>
+                    <div class="answer">${answerKey[i]}</div>
+                `;
+                answerKeyGrid.appendChild(answerItem);
+            }
+            
+            answerKeyContainer.style.display = 'block';
+        }
+
+        // Function to restart the quiz
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userSelections = {};
+            resultScreen.classList.remove('show');
+            homeScreen.classList.add('show');
+            answerKeyContainer.style.display = 'none';
+            updateLanguageText();
+        }
+
+        // Event listener for language selection change
+        languageSelect.addEventListener('change', (event) => {
+            currentLanguage = event.target.value;
+            updateLanguageText();
+        });
+
+        // Event listener for the "Start Quiz" button
+        startQuizButton.addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            userSelections = {};
+            renderQuestion(currentQuestionIndex);
+        });
+
+        // Event listener for the "Previous" button
+        prevButton.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion(currentQuestionIndex);
+            }
+        });
+
+        // Event listener for the "Next" button
+        nextButton.addEventListener('click', () => {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                currentQuestionIndex++;
+                renderQuestion(currentQuestionIndex);
+            } else {
+                showResults();
+            }
+        });
+
+        // Event listener for the "End Quiz" button
+        endButton.addEventListener('click', () => {
+            showResults();
+        });
+
+        // Event listener for the "Restart Quiz" button
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Event listener for the "Show Answer Key" button
+        showAnswersButton.addEventListener('click', showAnswerKey);
+
+        // Initialize the quiz on window load
+        window.onload = () => {
+            homeScreen.classList.add('show');
+            updateLanguageText();
+            totalQuestionsElement.textContent = totalQuestions;
+            
+            if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
+                MathJax.startup.promise.then(() => {
+                    // MathJax is ready
+                }).catch((err) => console.error("MathJax startup promise failed:", err));
+            }
+        };
+    </script>
+</body>
+</html>
